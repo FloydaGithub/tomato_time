@@ -1,7 +1,9 @@
 import sublime
 import sublime_plugin
 
+from .utils import log
 from .config import TOMATO_TIME, TICK_TIME
+
 tomato_singleton = None
 
 
@@ -25,19 +27,23 @@ class Tomato():
     def start(self):
         self.counter = 0
         self.actived = True
-        self.show_progress()
+        self.set_status_visiable(True)
+        log.info('start')
 
     def stop(self):
         self.counter = 0
         self.actived = False
+        self.set_status_visiable(False)
 
     def finish(self):
         self.stop()
-        sublime.message_dialog("Finish Tomato Time")
+        sublime.message_dialog('Finish Tomato Time')
+        log.info('finish')
 
     def discard(self):
         self.stop()
-        sublime.message_dialog("Discard Tomato Time")
+        sublime.message_dialog('Discard Tomato Time')
+        log.info('discard')
 
     def set_status_visiable(self, flag):
         self.status_visiable = flag
@@ -88,7 +94,7 @@ class ShowTomatoProgressCommand(sublime_plugin.TextCommand):
 
     def is_visible(self):
         tomato = get_tomato()
-        return tomato.is_actived()
+        return tomato.is_actived() and not tomato.get_status_visiable()
 
 
 class HideTomatoProgressCommand(sublime_plugin.TextCommand):
@@ -98,4 +104,4 @@ class HideTomatoProgressCommand(sublime_plugin.TextCommand):
 
     def is_visible(self):
         tomato = get_tomato()
-        return tomato.is_actived()
+        return tomato.is_actived() and tomato.get_status_visiable()

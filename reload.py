@@ -1,11 +1,15 @@
 import sys
 import os
 from imp import reload
+from .utils import log
 
 dirname = os.path.split(os.path.dirname(__file__))[1]
 
 all_modules = [
     'tomato_time',
+    'utils.log',
+    'config',
+    'utils',
 ]
 
 
@@ -17,13 +21,13 @@ def reload_module():
 
 
 def plugin_loaded():
-    print('---------- plugin_loaded -----------')
+    log.debug('---------- plugin_loaded ----------')
     reload_module()
     start_thread()
 
 
 def plugin_unloaded():
-    print('---------- plugin_unloaded -----------')
+    log.debug('---------- plugin_unloaded ----------')
     stop_thread(main_thread)
 
 
@@ -38,8 +42,8 @@ def _async_raise(tid, exctype):
     tid = ctypes.c_long(tid)
     if not inspect.isclass(exctype):
         exctype = type(exctype)
-    res = ctypes.pythonapi.PyThreadState_SetAsyncExc(tid,
-                                                     ctypes.py_object(exctype))
+    pyobj = ctypes.py_object(exctype)
+    res = ctypes.pythonapi.PyThreadState_SetAsyncExc(tid, pyobj)
     if res == 0:
         raise ValueError("invalid thread id")
     elif res != 1:
@@ -50,16 +54,16 @@ def _async_raise(tid, exctype):
 
 
 def start_thread():
-    print('start thread')
+    log.debug('start thread')
     main_thread.start()
 
 
 def stop_thread(thread):
     try:
         _async_raise(thread.ident, SystemExit)
-        print('stop thread')
+        log.debug('stop thread')
     except:
-        print('stop thread failed')
+        log.debug('stop thread failed')
         pass
 
 
