@@ -1,5 +1,6 @@
 import sublime
 import sublime_plugin
+import os, time
 
 from .utils import log
 from .config import TOMATO_TIME, TICK_TIME
@@ -7,8 +8,45 @@ from .config import TOMATO_TIME, TICK_TIME
 tomato_singleton = None
 
 
-class Tomato():
+def plugin_loaded():
+    tomato = get_tomato()
+    tomato.check_cache_time()
+
+
+class Storage():
     def __init__(self):
+        self.cache_path = os.path.join(sublime.cache_path(), 'User',
+                                       'tomato_time.cache')
+
+    def save_time(self, time_str=str(time.time())):
+        try:
+            log.debug('save_time: %s' % time_str)
+            fp = open(self.cache_path, 'w+')
+            fp.write(time_str)
+            fp.close()
+        except:
+            sublime.error_message("Cann't save current time to local.")
+
+    def load_time(self):
+        try:
+            fp = open(self.cache_path)
+            time_str = fp.read()
+            fp.close()
+            log.debug('load_time: %s' % time_str)
+            return time_str
+        except:
+            fp = open(self.cache_path, "w+")
+            fp.close()
+            return None
+
+    def clear_time(self):
+        log.debug('=========== clear_time ===========')
+        self.save_time('0')
+
+
+class Tomato(Storage):
+    def __init__(self):
+        super(Tomato, self).__init__()
         self.counter = 0
         self.actived = False
         self.status_visiable = True
@@ -24,13 +62,16 @@ class Tomato():
         if self.counter >= TOMATO_TIME:
             self.finish()
 
-    def start(self):
-        self.counter = 0
+    def start(self, last_time=0):
+        if last_time == 0:
+            self.save_time()
+        self.counter = last_time
         self.actived = True
         self.set_status_visiable(True)
         log.info('start')
 
     def stop(self):
+        self.clear_time()
         self.counter = 0
         self.actived = False
         self.set_status_visiable(False)
@@ -59,6 +100,22 @@ class Tomato():
         progress = int(self.counter / TOMATO_TIME * 100)
         msg = '|' + progress * '-' + 'o' + (100 - progress) * '-' + '|'
         sublime.status_message(msg)
+
+    def check_cache_time(self):
+        last_time = self.load_time()
+        try:
+            last_time = float(last_time)
+        except:
+            self.clear_time()
+            return
+
+        cur_time = time.time()
+        delta = cur_time - last_time
+        log.debug('delta: %s' % delta)
+        if delta >= TOMATO_TIME:
+            self.clear_time()
+        else:
+            self.start(int(delta))
 
 
 def get_tomato():
