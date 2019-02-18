@@ -63,15 +63,16 @@ def stop_thread(thread):
         pass
 
 
-class Tick(threading.Thread):
-    def test(self):
-        from .tomato_time import TOMATO_TIME
-        print('-------------', TOMATO_TIME)
+from .tomato_time import get_tomato
+from .config import TICK_TIME
 
+
+class Tick(threading.Thread):
     def run(self):
         while True:
-            self.test()
-            time.sleep(1)
+            tomato = get_tomato()
+            tomato.tick()
+            time.sleep(TICK_TIME)
 
 
 main_thread = Tick()

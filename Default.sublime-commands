@@ -1,0 +1,6 @@
+[
+    { "command": "create_tomato", "caption": "Tomato Time: Create Tomato Time" },
+    { "command": "discard_tomato", "caption": "Tomato Time: Discard Tomato Time" },
+    { "command": "show_tomato_progress", "caption": "Tomato Time: Show Status" },
+    { "command": "hide_tomato_progress", "caption": "Tomato Time: Hide Status" },
+]
