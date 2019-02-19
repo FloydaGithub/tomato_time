@@ -8,11 +8,6 @@ from .config import TOMATO_TIME, TICK_TIME
 tomato_singleton = None
 
 
-def plugin_loaded():
-    tomato = get_tomato()
-    tomato.check_cache_time()
-
-
 class Storage():
     def __init__(self):
         self.cache_path = os.path.join(sublime.cache_path(), 'User',
@@ -40,7 +35,6 @@ class Storage():
             return None
 
     def clear_time(self):
-        log.debug('=========== clear_time ===========')
         self.save_time('0')
 
 

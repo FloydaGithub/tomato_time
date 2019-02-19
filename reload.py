@@ -2,6 +2,8 @@ import sys
 import os
 from imp import reload
 from .utils import log
+from .tomato_time import get_tomato
+from .config import TICK_TIME
 
 dirname = os.path.split(os.path.dirname(__file__))[1]
 
@@ -24,6 +26,8 @@ def plugin_loaded():
     log.debug('---------- plugin_loaded ----------')
     reload_module()
     start_thread()
+    tomato = get_tomato()
+    tomato.check_cache_time()
 
 
 def plugin_unloaded():
@@ -67,16 +71,12 @@ def stop_thread(thread):
         pass
 
 
-from .tomato_time import get_tomato
-from .config import TICK_TIME
-
-
 class Tick(threading.Thread):
     def run(self):
         while True:
+            time.sleep(TICK_TIME)
             tomato = get_tomato()
             tomato.tick()
-            time.sleep(TICK_TIME)
 
 
 main_thread = Tick()
