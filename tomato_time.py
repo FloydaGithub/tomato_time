@@ -12,36 +12,73 @@ class Storage():
     def __init__(self):
         self.cache_path = os.path.join(sublime.cache_path(), 'User',
                                        'tomato_time.cache')
+        self.records_path = os.path.join(sublime.cache_path(), 'User',
+                                         'tomato_time_records.cache')
 
-    def save_cache(self, time_str=str(time.time())):
-        cache = {}
-        cache['last_time'] = time_str
-        cache['desc'] = self.desc
+    def save_json(self, path, content=''):
         try:
-            fp = open(self.cache_path, 'w+')
-            fp.write(json.dumps(cache))
+            fp = open(path, 'w+')
+            fp.write(content)
             fp.close()
         except:
-            sublime.error_message("Cann't save current time to local.")
+            sublime.error_message("Cann't save to local.")
+
+    def load_json(self, path):
+        try:
+            fp = open(path)
+            content = fp.read()
+            fp.close()
+            return json.loads(content)
+        except:
+            self.save_json(path)
+            self.clear_cache()
+            return {}
+
+    def save_cache(self):
+        cache = {}
+        cache['last_time'] = str(time.time())
+        cache['desc'] = self.desc
+        self.save_json(self.cache_path, json.dumps(cache))
 
     def load_cache(self):
-        try:
-            fp = open(self.cache_path)
-            cache = fp.read()
-            fp.close()
-            log.debug(cache)
-            return json.loads(cache)
-        except:
-            self.clear_cache()
-            return None
+        return self.load_json(self.cache_path)
 
     def clear_cache(self):
-        try:
-            fp = open(self.cache_path, 'w+')
-            fp.write('{}')
-            fp.close()
-        except:
-            sublime.error_message("Cann't save current time to local.")
+        self.save_json(self.cache_path)
+
+    def parse_records(self):
+        self.records = self.load_json(self.records_path)
+
+    def create_records(self, desc):
+        localtime = time.localtime()
+        date = time.strftime('%Y-%m-%d', localtime)
+        _time = time.strftime('%H:%M', localtime)
+        self.records[date] = self.records.get(date, [])
+        self.records[date].append('%s %s' % (_time, desc))
+        log.debug(self.records)
+        self.save_json(self.records_path, json.dumps(self.records))
+
+    def show_records(self):
+        window = sublime.active_window()
+        view = window.new_file()
+        view.set_name('Tomato Time Records')
+        view.set_scratch(True)
+        view.settings().set("word_wrap", True)
+        view.settings().set("auto_indent", False)
+        view.settings().set("tab_width", 4)
+        view.set_syntax_file('Packages/Markdown/Markdown.sublime-syntax')
+
+        def write(c):
+            view.run_command('insert', {'characters': c})
+
+        write('# Tomato Time Records\n')
+        for date in [v for v in sorted(self.records.keys())]:
+            write('\n## %s\n' % date)
+            for desc in self.records.get(date):
+                write('  * %s\n' % desc)
+
+    def clear_records(self):
+        self.save_json(self.records_path)
 
 
 class Tomato(Storage):
@@ -51,6 +88,7 @@ class Tomato(Storage):
         self.counter = 0
         self.actived = False
         self.status_visiable = True
+        self.parse_records()
 
     def set_desc(self, desc):
         self.desc = desc
@@ -82,8 +120,9 @@ class Tomato(Storage):
 
     def finish(self):
         self.stop()
-        sublime.message_dialog('Finish Tomato Time: %s' % self.desc)
+        self.create_records(self.desc)
         log.info('finish')
+        sublime.message_dialog('Finish Tomato Time: %s' % self.desc)
 
     def discard(self):
         self.stop()
@@ -173,3 +212,15 @@ class HideTomatoProgressCommand(sublime_plugin.TextCommand):
     def is_visible(self):
         tomato = get_tomato()
         return tomato.is_actived() and tomato.get_status_visiable()
+
+
+class ShowCompleteRecordsCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        tomato = get_tomato()
+        tomato.show_records()
+
+
+class ClearCompleteRecordsCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        tomato = get_tomato()
+        tomato.clear_records()

@@ -1,6 +1,8 @@
 [
     { "command": "create_tomato", "caption": "Tomato Time: Create Tomato Time" },
     { "command": "discard_tomato", "caption": "Tomato Time: Discard Tomato Time" },
-    { "command": "show_tomato_progress", "caption": "Tomato Time: Show Status" },
-    { "command": "hide_tomato_progress", "caption": "Tomato Time: Hide Status" },
+    { "command": "show_tomato_progress", "caption": "Tomato Time: Show Status Progress" },
+    { "command": "hide_tomato_progress", "caption": "Tomato Time: Hide Status Progress" },
+    { "command": "show_complete_records", "caption": "Tomato Time: Show Tomato Time Complete Records" },
+    { "command": "clear_complete_records", "caption": "Tomato Time: Clear Tomato Time Complete Records" },
 ]
