@@ -11,7 +11,6 @@ all_modules = [
     'tomato_time',
     'utils.log',
     'config',
-    'utils',
 ]
 
 

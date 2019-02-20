@@ -15,7 +15,7 @@ class Storage():
         self.records_path = os.path.join(sublime.cache_path(), 'User',
                                          'tomato_time_records.cache')
 
-    def save_json(self, path, content=''):
+    def save_json(self, path, content='{}'):
         try:
             fp = open(path, 'w+')
             fp.write(content)
@@ -38,6 +38,7 @@ class Storage():
         cache = {}
         cache['last_time'] = str(time.time())
         cache['desc'] = self.desc
+        log.debug(cache)
         self.save_json(self.cache_path, json.dumps(cache))
 
     def load_cache(self):
@@ -146,6 +147,7 @@ class Tomato(Storage):
 
     def check_cache_time(self):
         cache = self.load_cache()
+        log.debug(cache)
         try:
             last_time = float(cache.get('last_time'))
         except:
@@ -224,3 +226,4 @@ class ClearCompleteRecordsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         tomato = get_tomato()
         tomato.clear_records()
+        tomato.parse_records()
