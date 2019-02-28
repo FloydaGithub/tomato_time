@@ -3,9 +3,14 @@ import sublime_plugin
 import os, time, json
 
 from .utils import log
-from .config import TOMATO_TIME, TICK_TIME
+from .config import TOMATO_TIME, TICK_TIME, DEBUG
 
 tomato_singleton = None
+
+
+class Setting():
+    def __init__(self):
+        self.settings = sublime.load_settings('tomato_time.sublime-settings')
 
 
 class Storage():
@@ -14,6 +19,15 @@ class Storage():
                                        'tomato_time.cache')
         self.records_path = os.path.join(sublime.cache_path(), 'User',
                                          'tomato_time_records.cache')
+        
+        self.desc = ''
+        self.tag = None
+
+    def set_desc(self, desc):
+        self.desc = desc
+
+    def set_tag(self, tag):
+        self.tag = tag
 
     def save_json(self, path, content='{}'):
         try:
@@ -38,6 +52,7 @@ class Storage():
         cache = {}
         cache['last_time'] = str(time.time())
         cache['desc'] = self.desc
+        cache['tag'] = self.tag
         log.debug(cache)
         self.save_json(self.cache_path, json.dumps(cache))
 
@@ -50,12 +65,12 @@ class Storage():
     def parse_records(self):
         self.records = self.load_json(self.records_path)
 
-    def create_records(self, desc):
+    def create_records(self, content):
         localtime = time.localtime()
         date = time.strftime('%Y-%m-%d', localtime)
         _time = time.strftime('%H:%M', localtime)
         self.records[date] = self.records.get(date, [])
-        self.records[date].append('%s %s' % (_time, desc))
+        self.records[date].append('%s %s' % (_time, content))
         log.debug(self.records)
         self.save_json(self.records_path, json.dumps(self.records))
 
@@ -75,8 +90,8 @@ class Storage():
         write('# Tomato Time Records\n')
         for date in [v for v in sorted(self.records.keys())]:
             write('\n## %s\n' % date)
-            for desc in self.records.get(date):
-                write('  * %s\n' % desc)
+            for content in self.records.get(date):
+                write('  + %s\n' % content)
 
     def clear_records(self):
         self.save_json(self.records_path)
@@ -85,14 +100,10 @@ class Storage():
 class Tomato(Storage):
     def __init__(self):
         super(Tomato, self).__init__()
-        self.desc = ''
         self.counter = 0
         self.actived = False
         self.status_visiable = True
         self.parse_records()
-
-    def set_desc(self, desc):
-        self.desc = desc
 
     def is_actived(self):
         return self.actived
@@ -102,6 +113,10 @@ class Tomato(Storage):
             return
         self.counter += TICK_TIME
         self.show_progress()
+
+        if DEBUG and self.counter > 5:
+            self.finish()
+            return
         if self.counter >= TOMATO_TIME:
             self.finish()
 
@@ -121,7 +136,11 @@ class Tomato(Storage):
 
     def finish(self):
         self.stop()
-        self.create_records(self.desc)
+        if self.tag:
+            self.create_records('*%s* %s' % (self.tag, self.desc))
+        else:
+            self.create_records('%s' % (self.desc))
+        self.tag = None
         log.info('finish')
         sublime.message_dialog('Finish Tomato Time: %s' % self.desc)
 
@@ -161,6 +180,7 @@ class Tomato(Storage):
             self.clear_cache()
         else:
             self.set_desc(cache.get('desc'))
+            self.set_tag(cache.get('tag'))
             self.start(int(delta))
 
 
@@ -172,18 +192,59 @@ def get_tomato():
 
 
 class CreateTomatoCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
+    def show_desc_panel(self):
+        window = sublime.active_window()
+        caption = 'Tomato Time Description:'
+
         def on_done(desc):
             tomato = get_tomato()
             tomato.set_desc(desc)
+            tomato.set_tag(self.tag)
             tomato.start()
 
-        window = sublime.active_window()
-        caption = 'Tomato Time Description:'
         window.show_input_panel(caption, '', on_done, None, None)
 
-    def is_visible(self):
-        return True
+    def create_tag(self):
+        pass
+
+    def delete_tag(self):
+        pass
+
+    def show_tags_panel(self):
+        window = sublime.active_window()
+
+        items = [
+            'Discard Tag',
+            'Create Tag',
+            'Delete Tag',
+        ]
+        tags = [
+            'Fightint',
+            'WayaGame',
+        ]
+        for t in tags:
+            items.append('>>> %s' % t)
+
+        def on_select(index):
+            if index < 0:
+                return
+            if index == 0:
+                self.show_desc_panel()
+                return
+            if index == 1:
+                self.create_tag()
+                return
+            if index == 2:
+                self.delete_tag()
+                return
+            self.tag = tags[index - 3]
+            self.show_desc_panel()
+
+        window.show_quick_panel(items, on_select)
+
+    def run(self, edit):
+        self.tag = None
+        self.show_tags_panel()
 
 
 class DiscardTomatoCommand(sublime_plugin.TextCommand):
