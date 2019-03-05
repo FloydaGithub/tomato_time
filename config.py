@@ -1,3 +1,3 @@
-DEBUG = True
+DEBUG = False
 TOMATO_TIME = 25 * 60
 TICK_TIME = 1
