@@ -1,16 +1,19 @@
 import sys
 import os
 from imp import reload
-from .utils import log
+from .libs import log
 from .tomato_time import get_tomato
 from .config import TICK_TIME
 
 dirname = os.path.split(os.path.dirname(__file__))[1]
 
 all_modules = [
-    'tomato_time',
-    'utils.log',
     'config',
+    'command',
+    'tomato_time',
+    'libs.log',
+    'libs.resource',
+    'libs.storage',
 ]
 
 
