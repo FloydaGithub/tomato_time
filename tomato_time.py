@@ -143,7 +143,12 @@ class Tomato(TimestampCache, RecordsCache, TagsSetting):
 
     def discard(self):
         self.stop()
-        sublime.message_dialog('Discard Tomato Time: %s' % self._desc)
+        if self._tag:
+            sublime.message_dialog('Discard Tomato Time\nTag: %s\nDesc: %s' %
+                                   (self._tag, self._desc))
+        else:
+            sublime.message_dialog(
+                'Discard Tomato Time\nDesc: %s' % (self._desc))
         log.info('discard')
 
     def set_status_visiable(self, flag):
