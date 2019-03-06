@@ -13,7 +13,8 @@ class CreateTomatoCommand(sublime_plugin.TextCommand):
             self.tomato.set_tag(self.tag)
             self.tomato.start()
 
-        window.show_input_panel(caption, '', on_done, None, None)
+        window.show_input_panel(caption, self.tomato.get_desc(), on_done, None,
+                                None)
 
     def create_tag(self):
         window = sublime.active_window()
@@ -47,6 +48,8 @@ class CreateTomatoCommand(sublime_plugin.TextCommand):
         window = sublime.active_window()
 
         items = [
+            'Go on with last tomato: [Tag] %s, [Desc] %s' %
+            (self.tomato.get_tag(), self.tomato.get_desc()),
             'Discard Tag',
             'Create Tag',
             'Delete Tag',
@@ -59,12 +62,17 @@ class CreateTomatoCommand(sublime_plugin.TextCommand):
             if index < 0:
                 return
             if index == 0:
+                self.tag = self.tomato.get_tag()
                 self.show_desc_panel()
                 return
             if index == 1:
-                self.create_tag()
+                self.tag = None
+                self.show_desc_panel()
                 return
             if index == 2:
+                self.create_tag()
+                return
+            if index == 3:
                 self.delete_tag()
                 return
             self.tag = tags[index - 3]

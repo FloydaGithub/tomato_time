@@ -11,16 +11,22 @@ class TimestampCache(object):
     def __init__(self):
         super(TimestampCache, self).__init__()
         self._cache_timestamp = storage.StorageCache('tomato_time_timestamp')
-        self.desc = self._cache_timestamp.get('desc', '')
-        self.tag = self._cache_timestamp.get('tag', None)
+        self._desc = self._cache_timestamp.get('desc', '')
+        self._tag = self._cache_timestamp.get('tag', None)
 
     def set_desc(self, desc):
         self._cache_timestamp.set('desc', desc)
-        self.desc = desc
+        self._desc = desc
+
+    def get_desc(self):
+        return self._desc
 
     def set_tag(self, tag):
         self._cache_timestamp.set('tag', tag)
-        self.tag = tag
+        self._tag = tag
+
+    def get_tag(self):
+        return self._tag
 
     def get_last_time(self):
         return self._cache_timestamp.get('last_time')
@@ -128,17 +134,16 @@ class Tomato(TimestampCache, RecordsCache, TagsSetting):
 
     def finish(self):
         self.stop()
-        if self.tag:
-            self.create_records('**%s** %s' % (self.tag, self.desc))
+        if self._tag:
+            self.create_records('**%s** %s' % (self._tag, self._desc))
         else:
-            self.create_records('%s' % (self.desc))
-        self.tag = None
+            self.create_records('%s' % (self._desc))
         self.show_records()
         log.info('finish')
 
     def discard(self):
         self.stop()
-        sublime.message_dialog('Discard Tomato Time: %s' % self.desc)
+        sublime.message_dialog('Discard Tomato Time: %s' % self._desc)
         log.info('discard')
 
     def set_status_visiable(self, flag):
