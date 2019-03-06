@@ -46,14 +46,18 @@ class CreateTomatoCommand(sublime_plugin.TextCommand):
 
     def show_tags_panel(self):
         window = sublime.active_window()
+        items = []
+        tag = self.tomato.get_tag()
+        desc = self.tomato.get_desc()
 
-        items = [
-            'Go on with last tomato: [Tag] %s, [Desc] %s' %
-            (self.tomato.get_tag(), self.tomato.get_desc()),
-            'Discard Tag',
-            'Create Tag',
-            'Delete Tag',
-        ]
+        if tag:
+            items.append('Go on with last tomato: [%s] %s' % (tag, desc))
+        else:
+            items.append('Go on with last tomato: %s' % (desc))
+        items.append('Discard Tag')
+        items.append('Create Tag')
+        items.append('Delete Tag')
+
         tags = self.tomato.get_tags()
         for t in tags:
             items.append(': %s' % t)
