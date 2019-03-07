@@ -79,7 +79,7 @@ class CreateTomatoCommand(sublime_plugin.TextCommand):
             if index == 3:
                 self.delete_tag()
                 return
-            self.tag = tags[index - 3]
+            self.tag = tags[index - 4]
             self.show_desc_panel()
 
         window.show_quick_panel(items, on_select)

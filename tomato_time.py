@@ -125,6 +125,8 @@ class Tomato(TimestampCache, RecordsCache, TagsSetting):
         self.actived = True
         self.set_status_visiable(True)
         log.info('start')
+        log.info('[tag]: %s' % self._tag)
+        log.info('[desc]: %s' % self._desc)
 
     def stop(self):
         self.clear_timestamp()
@@ -140,6 +142,8 @@ class Tomato(TimestampCache, RecordsCache, TagsSetting):
             self.create_records('%s' % (self._desc))
         self.show_records()
         log.info('finish')
+        log.info('[tag]: %s' % self._tag)
+        log.info('[desc]: %s' % self._desc)
 
     def discard(self):
         self.stop()
@@ -150,6 +154,8 @@ class Tomato(TimestampCache, RecordsCache, TagsSetting):
             sublime.message_dialog(
                 'Discard Tomato Time\nDesc: %s' % (self._desc))
         log.info('discard')
+        log.info('[tag]: %s' % self._tag)
+        log.info('[desc]: %s' % self._desc)
 
     def set_status_visiable(self, flag):
         self.status_visiable = flag
