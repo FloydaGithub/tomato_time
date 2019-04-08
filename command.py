@@ -5,7 +5,7 @@ from .tomato_time import get_tomato
 
 class CreateTomatoCommand(sublime_plugin.TextCommand):
     def show_desc_panel(self):
-        window = sublime.active_window()
+        window = self.view.window()
         caption = 'Tomato Time Description:'
 
         def on_done(desc):
@@ -17,7 +17,7 @@ class CreateTomatoCommand(sublime_plugin.TextCommand):
                                 None)
 
     def create_tag(self):
-        window = sublime.active_window()
+        window = self.view.window()
         caption = 'New Tag\'s Name:'
 
         def on_done(name):
@@ -27,7 +27,7 @@ class CreateTomatoCommand(sublime_plugin.TextCommand):
         window.show_input_panel(caption, '', on_done, None, None)
 
     def delete_tag(self):
-        window = sublime.active_window()
+        window = self.view.window()
         items = []
         tags = self.tomato.get_tags()
         if len(tags) == 0:
@@ -45,7 +45,7 @@ class CreateTomatoCommand(sublime_plugin.TextCommand):
         window.show_quick_panel(items, on_select)
 
     def show_tags_panel(self):
-        window = sublime.active_window()
+        window = self.view.window()
         items = []
         tag = self.tomato.get_tag()
         desc = self.tomato.get_desc()
