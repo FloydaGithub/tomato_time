@@ -138,8 +138,12 @@ class Tomato(TimestampCache, RecordsCache, TagsSetting):
         self.stop()
         if self._tag:
             self.create_records('**%s** %s' % (self._tag, self._desc))
+            sublime.message_dialog('Finish Tomato Time\nTag: %s\nDesc: %s' %
+                                   (self._tag, self._desc))
         else:
             self.create_records('%s' % (self._desc))
+            sublime.message_dialog(
+                'Finish Tomato Time\nDesc: %s' % (self._desc))
         self.show_records()
         log.info('finish')
         log.info('[tag]: %s' % self._tag)
