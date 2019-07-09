@@ -5,6 +5,11 @@ from .libs import log
 from .tomato_time import get_tomato
 from .config import TICK_TIME
 
+import threading
+import time
+import inspect
+import ctypes
+
 dirname = os.path.split(os.path.dirname(__file__))[1]
 
 all_modules = [
@@ -37,12 +42,6 @@ def plugin_unloaded():
     stop_thread(main_thread)
 
 
-import threading
-import time
-import inspect
-import ctypes
-
-
 def _async_raise(tid, exctype):
     """raises the exception, performs cleanup if needed"""
     tid = ctypes.c_long(tid)
@@ -68,9 +67,8 @@ def stop_thread(thread):
     try:
         _async_raise(thread.ident, SystemExit)
         log.debug("stop thread")
-    except:
+    except Exception:
         log.debug("stop thread failed")
-        pass
 
 
 class Tick(threading.Thread):

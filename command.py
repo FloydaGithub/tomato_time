@@ -1,4 +1,3 @@
-import sublime
 import sublime_plugin
 from .tomato_time import get_tomato
 

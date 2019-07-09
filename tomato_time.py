@@ -1,5 +1,5 @@
 import sublime
-import os, time, json
+import time
 
 from .libs import log, storage
 from .config import TOMATO_TIME, TICK_TIME, DEBUG
@@ -178,7 +178,7 @@ class Tomato(TimestampCache, RecordsCache, TagsSetting):
 
     def check_cache_time(self):
         last_time = self.get_last_time()
-        if last_time == None:
+        if last_time is None:
             self.clear_timestamp()
             return
         cur_time = time.time()

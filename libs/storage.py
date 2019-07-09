@@ -1,9 +1,8 @@
 import sublime
-from sublime_lib import SettingsDict, NamedSettingsDict
+from sublime_lib import NamedSettingsDict
 
-import os
 import json
-from .resource import get_file_path_cache, get_setting_path_user
+from .resource import get_file_path_cache
 
 
 class Storage:
@@ -56,7 +55,7 @@ class StorageCache(Storage):
             content = fp.read()
             fp.close()
             self._dict = json.loads(content)
-        except:
+        except Exception:
             self.clear()
 
     def save(self):
@@ -65,14 +64,15 @@ class StorageCache(Storage):
             print("save content:", json.dumps(self._dict))
             fp.write(json.dumps(self._dict))
             fp.close()
-        except:
-            sublime.error_message("Cann't save to local.")
+        except Exception:
+            sublime.error_message("Cann't save cache file to local.")
 
     def clear(self):
         self._dict = {}
+        print(self._path)
         try:
             fp = open(self._path, "w+")
             fp.write("{}")
             fp.close()
-        except:
-            sublime.error_message("Cann't save to local.")
+        except Exception:
+            sublime.error_message("Cann't clear local cache.")
