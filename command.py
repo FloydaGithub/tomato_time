@@ -6,25 +6,24 @@ from .tomato_time import get_tomato
 class CreateTomatoCommand(sublime_plugin.TextCommand):
     def show_desc_panel(self):
         window = self.view.window()
-        caption = 'Tomato Time Description:'
+        caption = "Tomato Time Description:"
 
         def on_done(desc):
             self.tomato.set_desc(desc)
             self.tomato.set_tag(self.tag)
             self.tomato.start()
 
-        window.show_input_panel(caption, self.tomato.get_desc(), on_done, None,
-                                None)
+        window.show_input_panel(caption, self.tomato.get_desc(), on_done, None, None)
 
     def create_tag(self):
         window = self.view.window()
-        caption = 'New Tag\'s Name:'
+        caption = "New Tag's Name:"
 
         def on_done(name):
             self.tomato.create_tag(name)
             self.show_tags_panel()
 
-        window.show_input_panel(caption, '', on_done, None, None)
+        window.show_input_panel(caption, "", on_done, None, None)
 
     def delete_tag(self):
         window = self.view.window()
@@ -34,7 +33,7 @@ class CreateTomatoCommand(sublime_plugin.TextCommand):
             self.show_tags_panel()
             return
         for t in tags:
-            items.append(': %s' % t)
+            items.append(": %s" % t)
 
         def on_select(index):
             if index < 0:
@@ -51,16 +50,16 @@ class CreateTomatoCommand(sublime_plugin.TextCommand):
         desc = self.tomato.get_desc()
 
         if tag:
-            items.append('Go on with last tomato: [%s] %s' % (tag, desc))
+            items.append("Go on with last tomato: [%s] %s" % (tag, desc))
         else:
-            items.append('Go on with last tomato: %s' % (desc))
-        items.append('Discard Tag')
-        items.append('Create Tag')
-        items.append('Delete Tag')
+            items.append("Go on with last tomato: %s" % (desc))
+        items.append("Discard Tag")
+        items.append("Create Tag")
+        items.append("Delete Tag")
 
         tags = self.tomato.get_tags()
         for t in tags:
-            items.append(': %s' % t)
+            items.append(": %s" % t)
 
         def on_select(index):
             if index < 0:
